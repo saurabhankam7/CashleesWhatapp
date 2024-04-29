@@ -3,7 +3,7 @@ from datetime import datetime
 import schedule
 import time
 import requests
-import json
+# import json
 import mysql.connector
 import requests
 import json
@@ -61,74 +61,6 @@ location_id=2
 
 WhatsBusinessAPIStringCall=get_whatsapp_business_api_setting(client_id, location_id)
 
-async def send_whatsapp_messages_async(Cashless_Admission_Salus_ContactNos, APIKey, CampaignName, Param, UserName, APIUrl):
-    try:
-        for Cashless_Admission_Salus_ContactNo in Cashless_Admission_Salus_ContactNos:
-            await send_message_to_whatsapp_async(Cashless_Admission_Salus_ContactNo, APIKey, CampaignName, Param, UserName, APIUrl)
-    except Exception as ex:
-        return ex
-
-
-async def send_message_to_whatsapp_async(contact_no, APIKey, CampaignName, Param, UserName, APIUrl):
-    try:
-        # Prepare message data
-        message_data = {
-            "contact_no": contact_no,
-            "APIKey": APIKey,
-            "CampaignName": CampaignName,
-            "Param": Param,
-            "UserName": UserName
-        }
-
-        # Send message asynchronously
-        response = await requests.post(APIUrl, json=message_data)
-
-        # Handle response if needed
-        if response.status_code != 200:
-            raise Exception(f"Failed to send message to {contact_no}. Status code: {response.status_code}")
-
-    except Exception as ex:
-        log_error(ex)
-
-def log_error(ex):
-    # Log the error here
-    pass
-
-async def send_message_to_whatsapp_async(Cashless_Admission_Salus_ContactNo, APIKey, CampaignName, Param, UserName, APIUrl):
-    try:
-        # Your code to send WhatsApp message using WhatsApp API
-        response = await call_whatsapp_api_campaign(APIKey, CampaignName, Cashless_Admission_Salus_ContactNo, Param, UserName, APIUrl)
-        await asyncio.sleep(0.1)  # Simulated delay
-    except Exception as ex:
-        # Assuming objCommonRepository.LogError is a method to log errors
-        return ex
-
-
-async def call_whatsapp_api_campaign(APIKey, CampaignName, GSM, Param, UserName, APIUrl):
-    result = ''
-    apiUrl = APIUrl
-    GSM = '91' + GSM
-    jsonData = {
-        "apiKey": APIKey,
-        "campaignName": CampaignName,
-        "destination": GSM,
-        "userName": UserName,
-        "templateParams": Param,
-        "source": "new-landing-page form",
-        "media": {},
-        "buttons": [],
-        "carouselCards": [],
-        "location": {}
-    }
-
-    try:
-        response = requests.post(apiUrl, json=jsonData)
-        response.raise_for_status()  # Raise an error if response status is not OK (200)
-        responseObj = response.json()
-        result = responseObj.get('success', 'false')
-    except Exception as ex:
-        result = 'false'
-    return result
 
 
 
@@ -269,7 +201,7 @@ def save_data():
             WhatsBusinessAPIsplitvalues = WhatsBusinessAPIStringCall.split('#')
             
             # Now split_values is a list containing the individual values
-            print(type (WhatsBusinessAPIsplitvalues))
+            # print(type (WhatsBusinessAPIsplitvalues))
             
             
             APIKEY=WhatsBusinessAPIsplitvalues[0]
@@ -285,30 +217,30 @@ def save_data():
             CampaignName =""
             
             Template_Cashless_Admission_Param=[""]*6
-            if WhatsappBusinessAPI.strip().upper() == "TRUE":  # Check if clients have WhatsApp API facility
-                # If GSM and API key are not blank, send WhatsApp message. Call API from aisensy
-                if APIKEY.strip() and UserName.strip() and APIUrl.strip():
-                    # Set parameters for WhatsApp message
-                    Template_Cashless_Admission_Param[0] = str(row[12]).upper()
-                    Template_Cashless_Admission_Param[1] = str(row[28]).upper()
-                    Template_Cashless_Admission_Param[2] =str(row[1]).upper()
-                    Template_Cashless_Admission_Param[3] =str(row[6]).upper()
-                    Template_Cashless_Admission_Param[4] =str(row[6]).upper()
-                    Template_Cashless_Admission_Param[5] =str(row[7]).upper()
-                    CampaignName = Cashless_Admission_Salus_CampaignName
-                    print(Template_Cashless_Admission_Param)
-                    print(CampaignName)
-                    # for contactNo in Cashless_Admission_Salus_ContactNos:
-                    send_whatsapp_messages_async(Cashless_Admission_Salus_ContactNos, APIKEY, CampaignName, Template_Cashless_Admission_Param, UserName, APIUrl)
+            async def main():
+                # Your code to set up variables and environment
+                if WhatsappBusinessAPI.strip().upper() == "TRUE":
+                    if APIKEY.strip() and UserName.strip() and APIUrl.strip():
+                        Template_Cashless_Admission_Param[0] = str(row[12]).upper()
+                        Template_Cashless_Admission_Param[1] = str(row[28]).upper()
+                        Template_Cashless_Admission_Param[2] = str(row[1]).upper()
+                        Template_Cashless_Admission_Param[3] = str(row[6]).upper()
+                        Template_Cashless_Admission_Param[4] = str(row[6]).upper()
+                        Template_Cashless_Admission_Param[5] = str(row[7]).upper()
+                        CampaignName = Cashless_Admission_Salus_CampaignName
+                        print(Template_Cashless_Admission_Param)
 
-            result = "OK"
+                        # Await the coroutine here
+                        await send_whatsapp_messages_async(Cashless_Admission_Salus_ContactNos, APIKEY, CampaignName, Template_Cashless_Admission_Param, UserName, APIUrl)
 
-
+                result = "OK"
+                print(result)
+            asyncio.run(main())
             # # Execute the query to insert data into the trnadmission table
             # cursor1.execute(insert_query, data)
             # dest_db_connection.commit()
 
-            print("Value does not exist in test.trnadmission table's ThirdPartyAdmissionID column")
+            # print("Value does not exist in test.trnadmission table's ThirdPartyAdmissionID column")
 
     # Close the cursor and connection
     cursor.close()
@@ -317,11 +249,75 @@ def save_data():
     cursor1.close()
     dest_db_connection.close()
 
+async def send_whatsapp_messages_async(Cashless_Admission_Salus_ContactNos, APIKey, CampaignName, Param, UserName, APIUrl):
+    try:
+        for Cashless_Admission_Salus_ContactNo in Cashless_Admission_Salus_ContactNos:
+            await send_message_to_whatsapp_async(Cashless_Admission_Salus_ContactNo, APIKey, CampaignName, Param, UserName, APIUrl)
+            print(send_message_to_whatsapp_async)
+    except Exception as ex:
+        return ex
+
+
+
+async def send_message_to_whatsapp_async(Cashless_Admission_Salus_ContactNo, APIKey, CampaignName, Param, UserName, APIUrl):
+    try:
+        # Your code to send WhatsApp message using WhatsApp API
+        response = await call_whatsapp_api_campaign(APIKey, CampaignName, Cashless_Admission_Salus_ContactNo, Param, UserName, APIUrl)
+        print(response)
+        await asyncio.sleep(0.1)  # Simulated delay
+    except Exception as ex:
+        # Assuming objCommonRepository.LogError is a method to log errors
+        return ex
+
+
+async def call_whatsapp_api_campaign(APIKey, CampaignName, GSM, Param, UserName, APIUrl):
+    result = ''
+    apiUrl = APIUrl
+    GSM = '91' + GSM
+    jsonData = {
+        "apiKey": APIKey,
+        "campaignName": CampaignName,
+        "destination": GSM,
+        "userName": UserName,
+        "templateParams": Param,
+        "source": "new-landing-page form",
+        "media": {},
+        "buttons": [],
+        "carouselCards": [],
+        "location": {}
+    }
+    print(jsonData)
+    jsonDataString = json.dumps(jsonData)
+
+    # URL of the WhatsApp API endpoint
+
+    # Send the JSON data along with the request to the API URL
+    response = requests.post(APIUrl, data=jsonDataString)
+
+    # Check the response
+    if response.status_code == 200:
+        print("Message sent successfully!")
+    else:
+        print("Failed to send message. Status code:", response.status_code)
+
+
+    # try:
+    #     response = requests.post(apiUrl, json=jsonData)
+    #     response.raise_for_status()  # Raise an error if response status is not OK (200)
+    #     print(response.raise_for_status)
+    #     responseObj = response.json()
+    #     result = responseObj.get('success', 'false')
+    #     print(result)
+    # except Exception as ex:
+    #     result = 'false'
+    # return result
+
+
 # Schedule to run every hour
 schedule.every().hour.at(":00").do(save_data)
 
 # Schedule to run once daily at midnight
-schedule.every().day.at("16:38").do(save_data)
+schedule.every().day.at("10:20").do(save_data)
 # Infinite loop to keep the script running
 while True:
     schedule.run_pending()
