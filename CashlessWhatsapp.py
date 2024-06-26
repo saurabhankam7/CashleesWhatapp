@@ -23,8 +23,8 @@ def get_whatsapp_business_api_setting(client_id, location_id):
         cursor.execute(query, (client_id, location_id))
         dt_whatsapp = cursor.fetchall()
         # print("dt_whatsapp:", dt_whatsapp)
-        if dt_whatsapp:  # check if client has whatsapp related data
-            # setting values from whatsapp api table
+        if dt_whatsapp:  # check if client has whatsapp related datadfdsdfb
+            # setting values from whatsapp api tablefdsfdsf
             for row in dt_whatsapp:
                 key = row['Key']
                 value = row['Value']
